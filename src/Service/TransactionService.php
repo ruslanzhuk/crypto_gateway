@@ -14,7 +14,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Ramsey\Uuid\Uuid;
 
-class TransactionProcessor
+class TransactionService
 {
     private EntityManagerInterface $em;
     private ParameterBagInterface $params;
@@ -28,6 +28,8 @@ class TransactionProcessor
     public function getWalletAddress(string $cryptoCode, string $networkCode): string
     {
         $wallets = $this->params->get('wallets');
+//        $irow = $wallets[$networkCode][$cryptoCode] ?? '0xDEFAULTADDRESS';
+//        dd($irow);
 
         return $wallets[$networkCode][$cryptoCode] ?? '0xDEFAULTADDRESS';
     }
@@ -57,8 +59,8 @@ class TransactionProcessor
             throw new \RuntimeException("Status 'PND' not be found in table payment_status.");
         }
 
-        $confirmation = new PaymentConfirmation();
-        $this->em->persist($confirmation); // ⚠️ якщо confirmation обов’язковий і створюється одразу
+//        $confirmation = new PaymentConfirmation();
+//        $this->em->persist($confirmation); // ⚠️ якщо confirmation обов’язковий і створюється одразу
 
         $tx = (new Transaction())
             ->setUser($user)
@@ -68,7 +70,7 @@ class TransactionProcessor
             ->setMainStatus($status)
             ->setManualStatus($status)
             ->setAutomaticStatus($status)
-            ->setConfirmation($confirmation)
+//            ->setConfirmation($confirmation)
             ->setAmountFiat($amountUsd)
             ->setAmountCrypto(0)
             ->setReceivedAmountFiat(0)

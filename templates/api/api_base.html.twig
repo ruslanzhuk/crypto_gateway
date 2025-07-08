@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Admin API{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    {# Tailwind CSS CDN (якщо без компіляції) #}
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    {% block stylesheets %}{% endblock %}
+</head>
+<body class="bg-gray-50 text-gray-800 min-h-screen">
+<nav class="bg-white border-b shadow-sm p-4">
+    <div class="container mx-auto flex justify-between items-center">
+        <h1 class="text-xl font-bold">🔐 Crypto Gateway Admin</h1>
+        <div>
+            <a href="{{ path('app_transaction_index') }}" class="text-sm text-blue-600 hover:underline mr-4">Transactions</a>
+            <a href="{{ path('app_user_index') }}" class="text-sm text-blue-600 hover:underline">Users</a>
+        </div>
+    </div>
+</nav>
+
+<main class="p-6">
+    {% block body %}{% endblock %}
+</main>
+
+{% block javascripts %}{% endblock %}
+</body>
+</html>
