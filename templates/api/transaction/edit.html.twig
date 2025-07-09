@@ -1,4 +1,4 @@
-{% extends '../../base.html.twig' %}
+{% extends 'api/api_base.html.twig' %}
 
 {% block title %}Edit Transaction{% endblock %}
 
@@ -7,7 +7,7 @@
         <h1 class="text-2xl font-bold mb-6 text-gray-800">Edit Transaction</h1>
 
         <div class="mb-6">
-            {{ include('transaction/_form.html.twig', {'button_label': 'Update'}) }}
+            {{ include('api/transaction/_form.html.twig', {'button_label': 'Update'}) }}
         </div>
 
         <div class="flex justify-between items-center">
@@ -16,7 +16,7 @@
             </a>
 
             <div>
-                {{ include('transaction/_delete_form.html.twig') }}
+                {{ include('api/transaction/_delete_form.html.twig') }}
             </div>
         </div>
     </div>
