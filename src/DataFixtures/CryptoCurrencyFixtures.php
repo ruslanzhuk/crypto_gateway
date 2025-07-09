@@ -2,7 +2,7 @@
 //
 //namespace App\DataFixtures;
 //
-//use App\Entity\CryptoCurrency;
+//use App\Entity\CryptoCurrencyExists;
 //use Doctrine\Bundle\FixturesBundle\Fixture;
 //use Doctrine\Persistence\ObjectManager;
 //use Doctrine\Common\DataFixtures\DependentFixtureInterface;
@@ -22,7 +22,7 @@
 //        ];
 //
 //        foreach ($currencies as $data) {
-//            $crypto = new CryptoCurrency();
+//            $crypto = new CryptoCurrencyExists();
 //            $crypto->setCode($data['code']);
 //            $crypto->setName($data['name']);
 //            $crypto->setNetwork($this->getReference($data['network_ref'])); // <- 1 аргумент, все ок

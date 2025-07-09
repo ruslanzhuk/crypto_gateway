@@ -55,7 +55,7 @@ class Transaction
     private ?PaymentStatus $automaticStatus = null;
 
     #[ORM\OneToOne(cascade: ['persist', 'remove'])]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: true)]
     private ?PaymentConfirmation $confirmation = null;
 
     #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2)]

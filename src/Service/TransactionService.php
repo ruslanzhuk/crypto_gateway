@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\Dtos\CreateTransactionPayload;
 use App\Entity\PaymentConfirmation;
 use App\Entity\Transaction;
 use App\Entity\User;
@@ -28,29 +29,21 @@ class TransactionService
     public function getWalletAddress(string $cryptoCode, string $networkCode): string
     {
         $wallets = $this->params->get('wallets');
-//        $irow = $wallets[$networkCode][$cryptoCode] ?? '0xDEFAULTADDRESS';
-//        dd($irow);
 
         return $wallets[$networkCode][$cryptoCode] ?? '0xDEFAULTADDRESS';
     }
 
-    public function createTransaction(
-        User $user,
-        FiatCurrency $fiat,
-        CryptoCurrency $crypto,
-        Network $network,
-        float $amountUsd,
-        string $walletAddress
-    ): Transaction {
+    public function createTransaction(CreateTransactionPayload $payload): Transaction
+    {
         $now = new \DateTimeImmutable();
 
         $wallet = (new Wallet())
-            ->setPublicAddress($walletAddress)
+            ->setPublicAddress($payload->walletAddress)
             ->setPrivateKey('STATIC-PRIVATE-KEY') // ⚠️ замінити на реальне генерування
             ->setSeedPhrase('STATIC-SEED')        // ⚠️ замінити на реальне генерування
             ->setCreatedAt($now)
-            ->setUser($user)
-            ->setNetwork($network);
+            ->setUser($payload->user)
+            ->setNetwork($payload->network);
 
         $this->em->persist($wallet);
 
@@ -63,15 +56,15 @@ class TransactionService
 //        $this->em->persist($confirmation); // ⚠️ якщо confirmation обов’язковий і створюється одразу
 
         $tx = (new Transaction())
-            ->setUser($user)
+            ->setUser($payload->user)
             ->setWallet($wallet)
-            ->setFiatCurrency($fiat)
-            ->setCryptoCurrency($crypto)
+            ->setFiatCurrency($payload->fiatCurrency)
+            ->setCryptoCurrency($payload->cryptoCurrency)
             ->setMainStatus($status)
             ->setManualStatus($status)
             ->setAutomaticStatus($status)
 //            ->setConfirmation($confirmation)
-            ->setAmountFiat($amountUsd)
+            ->setAmountFiat($payload->fiatAmount)
             ->setAmountCrypto(0)
             ->setReceivedAmountFiat(0)
             ->setReceivedAmountCrypto(0)

@@ -17,7 +17,7 @@ class CryptoCurrencyRepository extends ServiceEntityRepository
     }
 
     //    /**
-    //     * @return CryptoCurrency[] Returns an array of CryptoCurrency objects
+    //     * @return CryptoCurrencyExists[] Returns an array of CryptoCurrencyExists objects
     //     */
     //    public function findByExampleField($value): array
     //    {
@@ -31,7 +31,7 @@ class CryptoCurrencyRepository extends ServiceEntityRepository
     //        ;
     //    }
 
-    //    public function findOneBySomeField($value): ?CryptoCurrency
+    //    public function findOneBySomeField($value): ?CryptoCurrencyExists
     //    {
     //        return $this->createQueryBuilder('c')
     //            ->andWhere('c.exampleField = :val')

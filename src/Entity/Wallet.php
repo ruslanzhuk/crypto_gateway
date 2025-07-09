@@ -65,12 +65,12 @@ class Wallet
 
     public function getPublicAddress(): ?string
     {
-        return $this->public_adress;
+        return $this->public_address;
     }
 
     public function setPublicAddress(string $public_adress): static
     {
-        $this->public_adress = $public_adress;
+        $this->public_address = $public_adress;
 
         return $this;
     }
