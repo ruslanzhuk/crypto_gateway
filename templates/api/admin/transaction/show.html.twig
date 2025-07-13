@@ -8,7 +8,13 @@
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
             <div><span class="font-semibold">User:</span> {{ transaction.user.email ?? 'N/A' }}</div>
-            <div><span class="font-semibold">Wallet:</span> {{ transaction.wallet.address ?? 'N/A' }}</div>
+            <div>
+                <span class="font-semibold">Wallet:</span>
+                <a href="{{ path('app_wallet_show', {'id': transaction.wallet.id}) }}" class="text-blue-600 hover:underline">
+                    {{ transaction.wallet.publicAddress ?? 'N/A' }}
+                </a>
+            </div>
+
 
             <div><span class="font-semibold">Fiat Currency:</span> {{ transaction.fiatCurrency.code ?? 'N/A' }}</div>
             <div><span class="font-semibold">Crypto Currency:</span> {{ transaction.cryptoCurrency.code ?? 'N/A' }}</div>
@@ -35,7 +41,7 @@
         <div class="flex items-center gap-4 mt-8">
             <a href="{{ path('app_transaction_index') }}" class="text-blue-600 hover:underline">← Back to list</a>
             <a href="{{ path('app_transaction_edit', {'id': transaction.id}) }}" class="text-yellow-600 hover:underline">✎ Edit</a>
-            {{ include('api/transaction/_delete_form.html.twig') }}
+            {{ include('api/admin/transaction/_delete_form.html.twig') }}
         </div>
     </div>
 {% endblock %}

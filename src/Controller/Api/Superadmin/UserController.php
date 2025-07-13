@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller;
+namespace App\Controller\Api\Superadmin;
 
 use App\Entity\User;
 use App\Form\UserType;
@@ -12,13 +12,13 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/user')]
+#[Route('/adminapi/user')]
 final class UserController extends AbstractController
 {
     #[Route(name: 'app_user_index', methods: ['GET'])]
     public function index(UserRepository $userRepository): Response
     {
-        return $this->render('user/index.html.twig', [
+        return $this->render('api/superadmin/user/index.html.twig', [
             'users' => $userRepository->findAll(),
         ]);
     }
@@ -49,7 +49,7 @@ final class UserController extends AbstractController
             return $this->redirectToRoute('app_user_index', [], Response::HTTP_SEE_OTHER);
         }
 
-        return $this->render('user/new.html.twig', [
+        return $this->render('api/superadmin/user/new.html.twig', [
             'user' => $user,
             'form' => $form,
         ]);
@@ -58,7 +58,7 @@ final class UserController extends AbstractController
     #[Route('/show/{id}', name: 'app_user_show', methods: ['GET'])]
     public function show(User $user): Response
     {
-        return $this->render('user/show.html.twig', [
+        return $this->render('api/superadmin/user/show.html.twig', [
             'user' => $user,
         ]);
     }
@@ -88,7 +88,7 @@ final class UserController extends AbstractController
             return $this->redirectToRoute('app_user_index', [], Response::HTTP_SEE_OTHER);
         }
 
-        return $this->render('user/edit.html.twig', [
+        return $this->render('api/superadmin/user/edit.html.twig', [
             'user' => $user,
             'form' => $form,
         ]);

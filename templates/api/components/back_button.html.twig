@@ -1,0 +1,6 @@
+<a href="{{ app.request.headers.get('referer') ?? path(fallback_route, fallback_params|default({})) }}"
+   onclick="event.preventDefault(); window.history.length > 1 ? history.back() : window.location.href='{{ path(fallback_route, fallback_params|default({})) }}';"
+   class="inline-flex items-center text-blue-600 hover:underline text-sm font-medium transition"
+>
+    ← Back
+</a>
