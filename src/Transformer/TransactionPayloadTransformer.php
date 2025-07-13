@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Factory;
+namespace App\Transformer;
 
 use App\Dtos\CreatePaymentRequestDTO;
 use App\Dtos\CreateTransactionPayload;
@@ -11,7 +11,7 @@ use App\Repository\UserRepository;
 use App\Service\TransactionService;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
-class TransactionPayloadFactory
+class TransactionPayloadTransformer
 {
     public function __construct(
         private UserRepository $userRepository,

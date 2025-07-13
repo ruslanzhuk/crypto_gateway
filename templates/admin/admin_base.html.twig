@@ -36,25 +36,42 @@
     <title>{% block title %}Admin Panel{% endblock %}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
 </head>
-<body class="bg-gradient-to-br from-slate-100 via-slate-200 to-slate-100 min-h-screen text-slate-800">
+<body class="bg-gradient-to-br from-purple-50 via-gray-100 to-purple-50 min-h-screen text-gray-900">
 <div class="flex min-h-screen">
     <!-- Sidebar -->
-    <aside class="w-64 bg-white shadow-lg p-4 hidden md:block">
-        <div class="text-2xl font-bold mb-6">Admin Dashboard</div>
-        <nav class="flex flex-col gap-2">
-            <a href="{{ path('app_user_index') }}" class="hover:bg-blue-100 p-2 rounded transition">Users</a>
-            <a href="{{ path('app_transaction_index') }}" class="hover:bg-blue-100 p-2 rounded transition">Transactions</a>
-            <a href="{{ path('app_wallet_index') }}" class="hover:bg-blue-100 p-2 rounded transition">Wallets</a>
+    <aside class="w-64 bg-white shadow-xl p-4 hidden md:block border-r border-gray-200">
+        <div class="text-xl font-semibold mb-8 text-purple-700">Crypto Admin</div>
+        <div id="clock" class="text-sm text-gray-500 mb-6"></div>
+        <nav class="flex flex-col gap-2 text-sm">
+            <a href="{{ path('app_transaction_index') }}" class="hover:bg-purple-100 p-2 rounded transition">Transactions</a>
+            <a href="{{ path('app_wallet_index') }}" class="hover:bg-purple-100 p-2 rounded transition">Wallets</a>
+            {% if is_granted('ROLE_SUPERADMIN') %}
+                <a href="{{ path('app_user_index') }}" class="hover:bg-purple-100 p-2 rounded transition">Users</a>
+            {% endif %}
         </nav>
     </aside>
 
     <!-- Main content -->
-    <main class="flex-1 p-6">
-        <div class="bg-white shadow-md rounded-xl p-6">
+    <main class="flex-1 p-8">
+        <div class="bg-white shadow border border-gray-200 rounded-lg p-6">
             {% block body %}{% endblock %}
         </div>
     </main>
 </div>
+
+<script>
+    function updateClock() {
+        const now = new Date();
+        const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        document.getElementById('clock').textContent = '🕒 ' + timeStr;
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+</script>
 </body>
 </html>

@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Controller\Api\Admin;
+namespace App\Controller;
 
 use App\Dtos\CreatePaymentRequestDTO;
 use App\Entity\Transaction;
-use App\Factory\TransactionPayloadFactory;
+use App\Transformer\TransactionPayloadTransformer;
 use App\Form\TransactionType;
 use App\Repository\TransactionRepository;
 use App\Service\TransactionService;
@@ -16,32 +16,29 @@ use Symfony\Component\Routing\Attribute\Route;
 
 //use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
-#[Route('/adminapi/transaction')]
+#[Route('/admin/transaction')]
 final class TransactionController extends AbstractController
 {
     #[Route(name: 'app_transaction_index', methods: ['GET'])]
     public function index(TransactionRepository $transactionRepository): Response
     {
-        return $this->render('api/admin/transaction/index.html.twig', [
+        return $this->render('admin/transaction/index.html.twig', [
             'transactions' => $transactionRepository->findAll(),
         ]);
     }
 
     #[Route('/new', name: 'app_transaction_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $em, TransactionService $transactionService, TransactionPayloadFactory $payloadFactory): Response
+    public function new(Request $request, EntityManagerInterface $em, TransactionService $transactionService, TransactionPayloadTransformer $payloadTransformer): Response
     {
 //        throw new NotFoundHttpException('Такої сторінки не існує!');
 
         /* @var CreatePaymentRequestDTO $data */
         $data = $request->attributes->get("payload");
 
-        $payload = $payloadFactory->fromDto($data);
+        $payload = $payloadTransformer->fromDto($data);
 
         $transaction = $transactionService->createTransaction($payload);
 
-
-        // Зберегти всі дані
-        $em->flush();
 
         // Відповідь
         return $this->json([
@@ -61,7 +58,7 @@ final class TransactionController extends AbstractController
     #[Route('/show/{id}', name: 'app_transaction_show', methods: ['GET'])]
     public function show(Transaction $transaction): Response
     {
-        return $this->render('api/admin/transaction/show.html.twig', [
+        return $this->render('admin/transaction/show.html.twig', [
             'transaction' => $transaction,
         ]);
     }
@@ -78,7 +75,7 @@ final class TransactionController extends AbstractController
             return $this->redirectToRoute('app_transaction_index', [], Response::HTTP_SEE_OTHER);
         }
 
-        return $this->render('api/admin/transaction/edit.html.twig', [
+        return $this->render('admin/transaction/edit.html.twig', [
             'transaction' => $transaction,
             'form' => $form,
         ]);

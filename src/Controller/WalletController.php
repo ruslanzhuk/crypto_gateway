@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller\Api\Admin;
+namespace App\Controller;
 
 use App\Entity\Wallet;
 use App\Repository\WalletRepository;
@@ -8,13 +8,13 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/adminapi/wallet')]
+#[Route('/admin/wallet')]
 final class WalletController extends AbstractController
 {
     #[Route(name: 'app_wallet_index', methods: ['GET'])]
     public function index(WalletRepository $walletRepository): Response
     {
-        return $this->render('api/admin/wallet/index.html.twig', [
+        return $this->render('admin/wallet/index.html.twig', [
             'wallets' => $walletRepository->findAll(),
         ]);
     }
@@ -42,7 +42,7 @@ final class WalletController extends AbstractController
     #[Route('/show/{id}', name: 'app_wallet_show', methods: ['GET'])]
     public function show(Wallet $wallet): Response
     {
-        return $this->render('api/admin/wallet/show.html.twig', [
+        return $this->render('admin/wallet/show.html.twig', [
             'wallet' => $wallet,
         ]);
     }

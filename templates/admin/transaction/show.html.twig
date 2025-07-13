@@ -1,4 +1,4 @@
-{% extends 'api/api_base.html.twig' %}
+{% extends 'admin/admin_base.html.twig' %}
 
 {% block title %}Transaction #{{ transaction.id }}{% endblock %}
 
@@ -41,7 +41,7 @@
         <div class="flex items-center gap-4 mt-8">
             <a href="{{ path('app_transaction_index') }}" class="text-blue-600 hover:underline">← Back to list</a>
             <a href="{{ path('app_transaction_edit', {'id': transaction.id}) }}" class="text-yellow-600 hover:underline">✎ Edit</a>
-            {{ include('api/admin/transaction/_delete_form.html.twig') }}
+            {{ include('admin/transaction/_delete_form.html.twig') }}
         </div>
     </div>
 {% endblock %}

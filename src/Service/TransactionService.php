@@ -75,6 +75,8 @@ class TransactionService
 
         $this->em->persist($tx);
 
+        $this->em->flush();
+
         return $tx;
     }
 }
