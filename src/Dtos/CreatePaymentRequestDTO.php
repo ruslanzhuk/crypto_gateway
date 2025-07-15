@@ -17,18 +17,9 @@ class CreatePaymentRequestDTO
     #[Assert\NotBlank]
     #[Assert\Type('float')]
     #[Assert\Positive]
-    public float $fiatamount;
-
-    #[Assert\NotBlank]
-    #[AppAssert\FiatCurrencyExists]
-    public string $fiatcurrency;
+    public float $cryptoamount;
 
     #[Assert\NotBlank]
     #[AppAssert\CryptoCurrencyExists]
     public string $cryptocurrency;
-
-    #[Assert\NotBlank]
-    #[Assert\Length(min: 3, max: 10)]
-    #[AppAssert\NetworkExists]
-    public string $network;
 }

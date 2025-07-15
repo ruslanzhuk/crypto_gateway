@@ -14,7 +14,7 @@ class CreateTransactionPayload
         public readonly FiatCurrency $fiatCurrency,
         public readonly CryptoCurrency $cryptoCurrency,
         public readonly Network $network,
-        public readonly float $fiatAmount,
+        public readonly float $cryptoAmount,
         public readonly string $walletAddress,
     ) {}
 }
