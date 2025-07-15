@@ -10,6 +10,13 @@ services:
         tags:
             - { name: controller.argument_value_resolver, priority: 100 }
 
+    App\Resolver\PriceProviderResolver:
+        arguments:
+            $providers: !tagged_iterator 'app.price_provider'
+
+    App\Service\Provider\Price\TronPriceProvider:
+        tags: ['app.price_provider']
+
 #    App\EventListener\ExceptionSubscriber:
 #        tags:
 #            - { name: kernel.event_listener, event: kernel.exception, method: onKernelException }

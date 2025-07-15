@@ -1,7 +1,7 @@
 parameters:
   wallets:
-    ethereum:
+    Ethereum:
       USDT: "0xDEADBEEF1234567890"
       ETH: "0xFAKEADDRESSETH"
-    tron:
+    Tron:
       USDT: "TRONUSDTADDRESS"

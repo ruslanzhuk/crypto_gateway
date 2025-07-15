@@ -5,12 +5,9 @@ namespace App\Service;
 use App\Dtos\CreateTransactionPayload;
 use App\Entity\PaymentConfirmation;
 use App\Entity\Transaction;
-use App\Entity\User;
-use App\Entity\FiatCurrency;
-use App\Entity\CryptoCurrency;
-use App\Entity\Network;
 use App\Entity\Wallet;
 use App\Entity\PaymentStatus;
+use App\Service\Provider\Price\CoinGeckoPriceProvider;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Ramsey\Uuid\Uuid;
@@ -20,10 +17,11 @@ class TransactionService
     private EntityManagerInterface $em;
     private ParameterBagInterface $params;
 
-    public function __construct(EntityManagerInterface $em, ParameterBagInterface $params)
+    public function __construct(EntityManagerInterface $em, ParameterBagInterface $params, CoinGeckoPriceProvider $priceProvider)
     {
         $this->em = $em;
         $this->params = $params;
+        $this->priceProvider = $priceProvider;
     }
 
     public function getWalletAddress(string $cryptoCode, string $networkCode): string
@@ -36,6 +34,12 @@ class TransactionService
     public function createTransaction(CreateTransactionPayload $payload): Transaction
     {
         $now = new \DateTimeImmutable();
+
+        $amountFiat = $this->priceProvider->convertCryptoToFiat(
+            strtolower($payload->cryptoCurrency->getName()),
+            $payload->cryptoAmount,
+            //$payload->fiatCurrency->getCode()
+        );
 
         $wallet = (new Wallet())
             ->setPublicAddress($payload->walletAddress)
@@ -64,8 +68,8 @@ class TransactionService
             ->setManualStatus($status)
             ->setAutomaticStatus($status)
 //            ->setConfirmation($confirmation)
-            ->setAmountFiat($payload->fiatAmount)
-            ->setAmountCrypto(0)
+            ->setAmountFiat($amountFiat["usd"])
+            ->setAmountCrypto($payload->cryptoAmount)
             ->setReceivedAmountFiat(0)
             ->setReceivedAmountCrypto(0)
             ->setIsAutomatic(false)

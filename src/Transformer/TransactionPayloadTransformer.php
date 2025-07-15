@@ -30,7 +30,7 @@ class TransactionPayloadTransformer
             throw new NotFoundHttpException('Shop not found');
         }
 
-        $fiat = $this->fiatRepo->findOneBy(['code' => $dto->fiatcurrency]);
+        $fiat = $this->fiatRepo->findOneBy(['code' => "USD"]);
         if (!$fiat) {
             throw new NotFoundHttpException('Fiat currency not found');
         }
@@ -40,12 +40,12 @@ class TransactionPayloadTransformer
             throw new NotFoundHttpException('Cryptocurrency not found');
         }
 
-        $network = $this->networkRepo->findOneBy(['name' => $dto->network]);
+        $network = $this->networkRepo->findOneBy(['id' => $crypto->getNetwork()]);
         if (!$network) {
             throw new NotFoundHttpException('Network not found');
         }
 
-        $walletAddress = $this->txService->getWalletAddress($dto->cryptocurrency, $dto->network);
+        $walletAddress = $this->txService->getWalletAddress($dto->cryptocurrency, $network->getName());
 
 
 
@@ -54,7 +54,7 @@ class TransactionPayloadTransformer
             fiatCurrency: $fiat,
             cryptoCurrency: $crypto,
             network: $network,
-            fiatAmount: $dto->fiatamount,
+            cryptoAmount: $dto->cryptoamount,
             walletAddress: $walletAddress
         );
     }
