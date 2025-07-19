@@ -2,13 +2,15 @@
 
 namespace App\Service\Provider\Price;
 
-use App\Service\Externalapi\CoinGecko\CoinGeckoClient;
+use App\Integrations\CoinGecko\CoinGeckoClient;
+use App\Repository\FiatCurrencyRepository;
 use Brick\Math\BigDecimal;
 use Brick\Math\RoundingMode;
 
 class CoinGeckoPriceProvider
 {
-    public function __construct(private readonly CoinGeckoClient $client) {}
+    public function __construct(private readonly CoinGeckoClient $client,
+                                private readonly FiatCurrencyRepository $fiatCurrencyRepository) {}
 
     public function convertFiatToCrypto(string $fiat, string $crypto, float $fiatAmount): float
     {
@@ -24,13 +26,16 @@ class CoinGeckoPriceProvider
         $price = BigDecimal::of((string)$priceData[$crypto][$fiat]);
         $amount = BigDecimal::of((string)$fiatAmount)->dividedBy($price, 18, RoundingMode::DOWN);
 
-        return rtrim(rtrim($amount->__toString(), '0'), '.');
+        return (float) $amount->__toString();
     }
 
-    public function convertCryptoToFiat(string $crypto, float $cryptoAmount, array $fiatCurrencies = ['usd', 'eur', 'gbp']): array
+    public function convertCryptoToFiat(string $crypto, float $cryptoAmount): array
     {
         $crypto = strtolower($crypto);
-        $fiats = array_map('strtolower', $fiatCurrencies);
+        $fiats = array_map(
+            fn($currency) => strtolower($currency->getCode()),
+            $this->fiatCurrencyRepository->findAll()
+        );
 
         $priceData = $this->client->getSimplePrice($crypto, implode(',', $fiats));
 

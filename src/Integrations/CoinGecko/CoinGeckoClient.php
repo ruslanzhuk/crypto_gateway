@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Service\Externalapi\CoinGecko;
+namespace App\Integrations\CoinGecko;
 
 class CoinGeckoClient
 {

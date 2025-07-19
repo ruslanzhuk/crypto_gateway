@@ -15,17 +15,12 @@
                 </a>
             </div>
 
-
-            <div><span class="font-semibold">Fiat Currency:</span> {{ transaction.fiatCurrency.code ?? 'N/A' }}</div>
             <div><span class="font-semibold">Crypto Currency:</span> {{ transaction.cryptoCurrency.code ?? 'N/A' }}</div>
-
             <div><span class="font-semibold">Tx Hash:</span> {{ transaction.txHash }}</div>
-            <div><span class="font-semibold">Fiat Amount (Requested):</span> {{ transaction.amountFiat }}</div>
 
             <div><span class="font-semibold">Crypto Amount (Requested):</span> {{ transaction.amountCrypto }}</div>
-            <div><span class="font-semibold">Fiat Amount (Received):</span> {{ transaction.receivedAmountFiat }}</div>
-
             <div><span class="font-semibold">Crypto Amount (Received):</span> {{ transaction.receivedAmountCrypto }}</div>
+
             <div><span class="font-semibold">Is Automatic:</span> {{ transaction.isAutomatic ? 'Yes' : 'No' }}</div>
 
             <div><span class="font-semibold">Main Status:</span> {{ transaction.mainStatus.name ?? 'N/A' }}</div>
@@ -36,6 +31,37 @@
 
             <div><span class="font-semibold">Expired At:</span> {{ transaction.expiredAt ? transaction.expiredAt|date('Y-m-d H:i:s') : '—' }}</div>
             <div><span class="font-semibold">Created At:</span> {{ transaction.createdAt ? transaction.createdAt|date('Y-m-d H:i:s') : '—' }}</div>
+        </div>
+
+        {# Новий блок: фіатні валюти #}
+        <div class="mt-8">
+            <h2 class="text-xl font-semibold mb-4">Fiat Amounts</h2>
+            {% if transaction.fiatAmounts is empty %}
+                <p class="text-gray-500">No fiat amounts associated.</p>
+            {% else %}
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm text-left border border-gray-300 rounded-lg">
+                        <thead class="bg-gray-100">
+                        <tr>
+                            <th class="px-4 py-2">Currency</th>
+                            <th class="px-4 py-2">Amount</th>
+                            <th class="px-4 py-2">Rate</th>
+                            <th class="px-4 py-2">Created At</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for fiat in transaction.fiatAmounts %}
+                            <tr class="border-t">
+                                <td class="px-4 py-2">{{ fiat.fiatCurrency.code }}</td>
+                                <td class="px-4 py-2">{{ fiat.amount }}</td>
+                                <td class="px-4 py-2">{{ fiat.rate }}</td>
+                                <td class="px-4 py-2">{{ fiat.createdAt|date('Y-m-d H:i:s') }}</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% endif %}
         </div>
 
         <div class="flex items-center gap-4 mt-8">

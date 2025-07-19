@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\TransactionRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -27,14 +29,7 @@ class Transaction
 
     #[ORM\ManyToOne(inversedBy: 'transactions')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?FiatCurrency $fiatCurrency = null;
-
-    #[ORM\ManyToOne(inversedBy: 'transactions')]
-    #[ORM\JoinColumn(nullable: false)]
     private ?CryptoCurrency $cryptoCurrency = null;
-
-    #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2)]
-    private ?string $amountFiat = null;
 
     #[ORM\Column(type: Types::DECIMAL, precision: 36, scale: 18)]
     private ?string $amountCrypto = null;
@@ -58,9 +53,6 @@ class Transaction
     #[ORM\JoinColumn(nullable: true)]
     private ?PaymentConfirmation $confirmation = null;
 
-    #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2)]
-    private ?string $receivedAmountFiat = null;
-
     #[ORM\Column(type: Types::DECIMAL, precision: 36, scale: 18)]
     private ?string $receivedAmountCrypto = null;
 
@@ -69,6 +61,17 @@ class Transaction
 
     #[ORM\Column]
     private ?\DateTimeImmutable $createdAt = null;
+
+    /**
+     * @var Collection<int, FiatAmountPerTransaction>
+     */
+    #[ORM\OneToMany(targetEntity: FiatAmountPerTransaction::class, mappedBy: 'transaction')]
+    private Collection $fiatAmounts;
+
+    public function __construct()
+    {
+        $this->fiatAmounts = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -111,18 +114,6 @@ class Transaction
         return $this;
     }
 
-    public function getFiatCurrency(): ?FiatCurrency
-    {
-        return $this->fiatCurrency;
-    }
-
-    public function setFiatCurrency(?FiatCurrency $fiatCurrency): static
-    {
-        $this->fiatCurrency = $fiatCurrency;
-
-        return $this;
-    }
-
     public function getCryptoCurrency(): ?CryptoCurrency
     {
         return $this->cryptoCurrency;
@@ -131,18 +122,6 @@ class Transaction
     public function setCryptoCurrency(?CryptoCurrency $cryptoCurrency): static
     {
         $this->cryptoCurrency = $cryptoCurrency;
-
-        return $this;
-    }
-
-    public function getAmountFiat(): ?string
-    {
-        return $this->amountFiat;
-    }
-
-    public function setAmountFiat(string $amountFiat): static
-    {
-        $this->amountFiat = $amountFiat;
 
         return $this;
     }
@@ -219,18 +198,6 @@ class Transaction
         return $this;
     }
 
-    public function getReceivedAmountFiat(): ?string
-    {
-        return $this->receivedAmountFiat;
-    }
-
-    public function setReceivedAmountFiat(string $receivedAmountFiat): static
-    {
-        $this->receivedAmountFiat = $receivedAmountFiat;
-
-        return $this;
-    }
-
     public function getReceivedAmountCrypto(): ?string
     {
         return $this->receivedAmountCrypto;
@@ -263,6 +230,36 @@ class Transaction
     public function setCreatedAt(\DateTimeImmutable $createdAt): static
     {
         $this->createdAt = $createdAt;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, FiatAmountPerTransaction>
+     */
+    public function getFiatAmounts(): Collection
+    {
+        return $this->fiatAmounts;
+    }
+
+    public function addFiatAmountPerTransaction(FiatAmountPerTransaction $fiatAmountPerTransaction): static
+    {
+        if (!$this->fiatAmounts->contains($fiatAmountPerTransaction)) {
+            $this->fiatAmounts->add($fiatAmountPerTransaction);
+            $fiatAmountPerTransaction->setTransaction($this);
+        }
+
+        return $this;
+    }
+
+    public function removeFiatAmountPerTransaction(FiatAmountPerTransaction $fiatAmountPerTransaction): static
+    {
+        if ($this->fiatAmounts->removeElement($fiatAmountPerTransaction)) {
+            // set the owning side to null (unless already changed)
+            if ($fiatAmountPerTransaction->getTransaction() === $this) {
+                $fiatAmountPerTransaction->setTransaction(null);
+            }
+        }
 
         return $this;
     }

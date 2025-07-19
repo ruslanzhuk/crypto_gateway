@@ -5,3 +5,4 @@ parameters:
       ETH: "0xFAKEADDRESSETH"
     Tron:
       USDT: "TRONUSDTADDRESS"
+      TRX: "TRONTRXADDRESS"

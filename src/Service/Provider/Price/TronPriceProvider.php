@@ -2,7 +2,7 @@
 
 namespace App\Service\Provider\Price;
 
-use App\Service\Externalapi\Tron\TronClient;
+use App\Integrations\Tron\TronClient;
 
 class TronPriceProvider implements PriceProviderInterface
 {

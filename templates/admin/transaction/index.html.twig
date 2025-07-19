@@ -19,10 +19,8 @@
                 <tr>
                     <th class="px-4 py-3">ID</th>
                     <th class="px-4 py-3">Tx Hash</th>
-                    <th class="px-4 py-3">Fiat</th>
                     <th class="px-4 py-3">Crypto</th>
                     <th class="px-4 py-3">Auto</th>
-                    <th class="px-4 py-3">Received Fiat</th>
                     <th class="px-4 py-3">Received Crypto</th>
                     <th class="px-4 py-3">Expired At</th>
                     <th class="px-4 py-3">Created</th>
@@ -34,7 +32,6 @@
                     <tr class="border-b hover:bg-gray-50 transition">
                         <td class="px-4 py-3">{{ transaction.id }}</td>
                         <td class="px-4 py-3">{{ transaction.txHash }}</td>
-                        <td class="px-4 py-3">{{ transaction.amountFiat }}</td>
                         <td class="px-4 py-3">{{ transaction.amountCrypto }}</td>
                         <td class="px-4 py-3">
                             {% if transaction.isAutomatic %}
@@ -43,7 +40,6 @@
                                 <span class="text-red-600 font-semibold">No</span>
                             {% endif %}
                         </td>
-                        <td class="px-4 py-3">{{ transaction.receivedAmountFiat }}</td>
                         <td class="px-4 py-3">{{ transaction.receivedAmountCrypto }}</td>
                         <td class="px-4 py-3">
                             {{ transaction.expiredAt ? transaction.expiredAt|date('Y-m-d H:i:s') : '—' }}

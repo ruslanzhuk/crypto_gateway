@@ -19,51 +19,30 @@ class TransactionType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('txHash')
-            ->add('amountFiat')
-            ->add('amountCrypto')
-            ->add('isAutomatic')
-            ->add('receivedAmountFiat')
-            ->add('receivedAmountCrypto')
             ->add('expiredAt', null, [
                 'widget' => 'single_text',
             ])
-            ->add('createdAt', null, [
-                'widget' => 'single_text',
-            ])
-            ->add('user', EntityType::class, [
-                'class' => User::class,
-                'choice_label' => 'id',
-            ])
-            ->add('wallet', EntityType::class, [
-                'class' => Wallet::class,
-                'choice_label' => 'id',
-            ])
-            ->add('fiatCurrency', EntityType::class, [
-                'class' => FiatCurrency::class,
-                'choice_label' => 'id',
-            ])
-            ->add('cryptoCurrency', EntityType::class, [
-                'class' => CryptoCurrency::class,
-                'choice_label' => 'id',
-            ])
+            ->add('isAutomatic')
+
+            // Статуси
             ->add('mainStatus', EntityType::class, [
                 'class' => PaymentStatus::class,
-                'choice_label' => 'id',
+                'choice_label' => 'code',
             ])
             ->add('manualStatus', EntityType::class, [
                 'class' => PaymentStatus::class,
-                'choice_label' => 'id',
+                'choice_label' => 'code',
             ])
             ->add('automaticStatus', EntityType::class, [
                 'class' => PaymentStatus::class,
-                'choice_label' => 'id',
+                'choice_label' => 'code',
             ])
             ->add('confirmation', EntityType::class, [
                 'class' => PaymentConfirmation::class,
                 'choice_label' => 'id',
-            ])
-        ;
+                'required' => false,
+                'placeholder' => 'Не підтверджено',
+            ]);
     }
 
     public function configureOptions(OptionsResolver $resolver): void

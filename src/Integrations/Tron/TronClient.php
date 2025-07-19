@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Service\Externalapi\Tron;
+namespace App\Integrations\Tron;
 
 class TronClient
 {

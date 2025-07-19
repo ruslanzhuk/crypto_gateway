@@ -3,6 +3,7 @@
 namespace App\Service;
 
 use App\Dtos\CreateTransactionPayload;
+use App\Entity\FiatAmountPerTransaction;
 use App\Entity\PaymentConfirmation;
 use App\Entity\Transaction;
 use App\Entity\Wallet;
@@ -16,6 +17,7 @@ class TransactionService
 {
     private EntityManagerInterface $em;
     private ParameterBagInterface $params;
+    private CoinGeckoPriceProvider $priceProvider;
 
     public function __construct(EntityManagerInterface $em, ParameterBagInterface $params, CoinGeckoPriceProvider $priceProvider)
     {
@@ -35,10 +37,9 @@ class TransactionService
     {
         $now = new \DateTimeImmutable();
 
-        $amountFiat = $this->priceProvider->convertCryptoToFiat(
+        $fiatRates = $this->priceProvider->convertCryptoToFiat(
             strtolower($payload->cryptoCurrency->getName()),
-            $payload->cryptoAmount,
-            //$payload->fiatCurrency->getCode()
+            $payload->cryptoAmount
         );
 
         $wallet = (new Wallet())
@@ -62,15 +63,12 @@ class TransactionService
         $tx = (new Transaction())
             ->setUser($payload->user)
             ->setWallet($wallet)
-            ->setFiatCurrency($payload->fiatCurrency)
             ->setCryptoCurrency($payload->cryptoCurrency)
             ->setMainStatus($status)
             ->setManualStatus($status)
             ->setAutomaticStatus($status)
 //            ->setConfirmation($confirmation)
-            ->setAmountFiat($amountFiat["usd"])
             ->setAmountCrypto($payload->cryptoAmount)
-            ->setReceivedAmountFiat(0)
             ->setReceivedAmountCrypto(0)
             ->setIsAutomatic(false)
             ->setCreatedAt($now)
@@ -78,6 +76,27 @@ class TransactionService
             ->setTxHash(Uuid::uuid4()->toString()); // або uuid або більш надійний хеш
 
         $this->em->persist($tx);
+
+        foreach ($fiatRates as $fiatCode => $fiatAmount) {
+            $fiatCurrency = $this->em->getRepository(\App\Entity\FiatCurrency::class)
+                ->findOneBy(['code' => strtoupper($fiatCode)]);
+
+            if (!$fiatCurrency) {
+                throw new \RuntimeException("Currency $fiatCode not found in fiat_currency table.");
+            }
+
+            // Ціна за 1 одиницю крипти (тобто rate)
+            $rate = $fiatAmount / $payload->cryptoAmount;
+
+            $conversion = (new FiatAmountPerTransaction())
+                ->setTransaction($tx)
+                ->setFiatCurrency($fiatCurrency)
+                ->setAmount($fiatAmount)
+                ->setRate($rate)
+                ->setCreatedAt($now);
+
+            $this->em->persist($conversion);
+        }
 
         $this->em->flush();
 
