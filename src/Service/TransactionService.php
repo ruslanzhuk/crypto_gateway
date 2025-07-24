@@ -12,6 +12,7 @@ use App\Service\Provider\Price\CoinGeckoPriceProvider;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Ramsey\Uuid\Uuid;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 class TransactionService
 {
@@ -33,7 +34,7 @@ class TransactionService
         return $wallets[$networkCode][$cryptoCode] ?? '0xDEFAULTADDRESS';
     }
 
-    public function createTransaction(CreateTransactionPayload $payload): Transaction
+    public function createTransaction(CreateTransactionPayload $payload, WalletService $walletService): Transaction
     {
         $now = new \DateTimeImmutable();
 
@@ -42,15 +43,7 @@ class TransactionService
             $payload->cryptoAmount
         );
 
-        $wallet = (new Wallet())
-            ->setPublicAddress($payload->walletAddress)
-            ->setPrivateKey('STATIC-PRIVATE-KEY') // ⚠️ замінити на реальне генерування
-            ->setSeedPhrase('STATIC-SEED')        // ⚠️ замінити на реальне генерування
-            ->setCreatedAt($now)
-            ->setUser($payload->user)
-            ->setNetwork($payload->network);
-
-        $this->em->persist($wallet);
+        $wallet = $walletService->createWallet($payload->network, $payload->user);
 
         $status = $this->em->getRepository(PaymentStatus::class)->findOneBy(['code' => 'PND']);
         if (!$status) {
@@ -101,5 +94,56 @@ class TransactionService
         $this->em->flush();
 
         return $tx;
+    }
+
+    public function updateTransaction(Transaction $transaction, array $data): Transaction
+    {
+        if (isset($data['expired_at'])) {
+            $transaction->setExpiredAt(new \DateTimeImmutable($data['expired_at']));
+        }
+
+        if (isset($data['main_status_id'])) {
+            $mainStatus = $this->em->getRepository(PaymentStatus::class)->find($data['main_status_id']);
+            if ($mainStatus) {
+                $transaction->setMainStatus($mainStatus);
+            }
+        }
+
+        if (isset($data['manual_status_id'])) {
+            $manualStatus = $this->em->getRepository(PaymentStatus::class)->find($data['manual_status_id']);
+            if ($manualStatus) {
+                $transaction->setManualStatus($manualStatus);
+            }
+        }
+
+        if (isset($data['automatic_status_id'])) {
+            $automaticStatus = $this->em->getRepository(PaymentStatus::class)->find($data['automatic_status_id']);
+            if ($automaticStatus) {
+                $transaction->setAutomaticStatus($automaticStatus);
+            }
+        }
+
+        if (isset($data['confirmation_id'])) {
+            $confirmation = $this->em->getRepository(PaymentConfirmation::class)->find($data['confirmation_id']);
+            $transaction->setConfirmation($confirmation);
+        }
+
+        if (array_key_exists('is_automatic', $data)) {
+            $transaction->setIsAutomatic((bool)$data['is_automatic']);
+        }
+
+        $this->em->flush();
+
+        return $transaction;
+    }
+
+    public function deleteTransaction(Transaction $transaction): void
+    {
+        if ($transaction->getMainStatus()->getCode() === 'CMP') {
+            throw new \RuntimeException('Cannot delete completed transaction.');
+        }
+
+        $this->em->remove($transaction);
+        $this->em->flush();
     }
 }

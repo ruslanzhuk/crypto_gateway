@@ -4,22 +4,10 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
+    wallet_service_api_url: '%env(WALLET_SERVICE_API_URL)%'
 
 services:
-    App\Resolver\CreatePaymentRequestDTOResolver:
-        tags:
-            - { name: controller.argument_value_resolver, priority: 100 }
 
-    App\Resolver\PriceProviderResolver:
-        arguments:
-            $providers: !tagged_iterator 'app.price_provider'
-
-    App\Service\Provider\Price\TronPriceProvider:
-        tags: ['app.price_provider']
-
-#    App\EventListener\ExceptionSubscriber:
-#        tags:
-#            - { name: kernel.event_listener, event: kernel.exception, method: onKernelException }
     # default configuration for services in *this* file
     _defaults:
         autowire: true      # Automatically injects dependencies in your services.
@@ -33,6 +21,26 @@ services:
             - '../src/DependencyInjection/'
             - '../src/Entity/'
             - '../src/Kernel.php'
+
+    App\Resolver\CreatePaymentRequestDTOResolver:
+        tags:
+            - { name: controller.argument_value_resolver, priority: 100 }
+
+    App\Resolver\PriceProviderResolver:
+        arguments:
+            $providers: !tagged_iterator 'app.price_provider'
+
+    App\Service\Provider\Price\TronPriceProvider:
+        tags: [ 'app.price_provider' ]
+
+    App\Integrations\Wallet\WalletConnector:
+        arguments:
+            $walletServiceApiURL: '%wallet_service_api_url%'
+
+    # Example: how to configure without autoconfiguration
+#    App\EventSubscriber\ExceptionSubscriber:
+#        tags:
+#            - { name: kernel.event_listener, event: kernel.exception, method: onKernelException }
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones

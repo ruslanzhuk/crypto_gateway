@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Dtos\CreatePaymentRequestDTO;
 use App\Entity\Transaction;
+use App\Service\WalletService;
 use App\Transformer\TransactionPayloadTransformer;
 use App\Form\TransactionType;
 use App\Repository\TransactionRepository;
@@ -14,8 +15,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-//use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-
 #[Route('/admin/transaction')]
 final class TransactionController extends AbstractController
 {
@@ -25,34 +24,6 @@ final class TransactionController extends AbstractController
         return $this->render('admin/transaction/index.html.twig', [
             'transactions' => $transactionRepository->findAll(),
         ]);
-    }
-
-    #[Route('/new', name: 'app_transaction_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $em, TransactionService $transactionService, TransactionPayloadTransformer $payloadTransformer): Response
-    {
-//        throw new NotFoundHttpException('Такої сторінки не існує!');
-
-        /* @var CreatePaymentRequestDTO $data */
-        $data = $request->attributes->get("payload");
-
-        $payload = $payloadTransformer->fromDto($data);
-
-        $transaction = $transactionService->createTransaction($payload);
-
-
-        // Відповідь
-        return $this->json([
-            'success' => true,
-            'transaction_id' => $transaction->getId(),
-            'tx_hash' => $transaction->getTxHash(),
-            'wallet' => $transaction->getWallet()->getPublicAddress(),
-            'expires_at' => $transaction->getExpiredAt()->format('Y-m-d H:i:s'),
-        ]);
-
-//        return $this->render('api/transaction/new.html.twig', [
-//            'transaction' => $transaction,
-//            'form' => $form,
-//        ]);
     }
 
     #[Route('/show/{id}', name: 'app_transaction_show', methods: ['GET'])]
