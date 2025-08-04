@@ -16,7 +16,7 @@ final class PaymentController extends AbstractController
     public function create(CreatePaymentRequestDTO $request): Response
     {
         return $this->forward(
-            controller: 'App\\Controller\\TransactionController::new',
+            controller: 'App\\Controller\\API\\TransactionApiController::new',
             path: [
                 'payload' => $request,
             ]

@@ -22,9 +22,6 @@ class TransactionApiController extends AbstractController
     public function __construct(
         private TransactionRepository $transactionRepository,
         private TransactionService $transactionService,
-        private WalletService $walletService,
-        private TransactionPayloadTransformer $payloadTransformer,
-        private EntityManagerInterface $em,
         private NormalizerInterface $normalizer
     )
     {

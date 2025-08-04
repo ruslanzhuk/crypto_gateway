@@ -13,6 +13,17 @@ services:
       - db
     environment:
       - APP_ENV=dev
+    deploy:
+      resources:
+        limits:
+          memory: 6g
+        reservations:
+          memory: 4g
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
+    networks:
+      - app-network
 
   nginx:
     image: nginx:latest
@@ -23,6 +34,8 @@ services:
       - .:/var/www/html
     depends_on:
       - php
+    networks:
+      - app-network
 
   db:
     image: postgres:15-alpine
@@ -34,11 +47,15 @@ services:
       - db-data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+    networks:
+      - app-network
 
   redis:
     image: redis:alpine
     ports:
       - "6379:6379"
+    networks:
+      - app-network
 
   node:
     image: node:22
@@ -46,6 +63,19 @@ services:
     volumes:
       - .:/var/www/html
     command: ["sh", "-c", "npm install && npm run dev"]
+    networks:
+      - app-network
+
+#  wallet_service:
+#    image: your-wallet-service-image
+#    ports:
+#      - "50051:50051" # gRPC порт
+#    depends_on:
+#      - db
 
 volumes:
   db-data:
+
+networks:
+  app-network:
+    driver: bridge

@@ -21,6 +21,13 @@ services:
             - '../src/DependencyInjection/'
             - '../src/Entity/'
             - '../src/Kernel.php'
+            - '../src/Integrations/WalletService/GPBMetadata/'
+            - '../src/Integrations/WalletService/Wallet/'
+
+    App\Integrations\WalletService\WalletServiceConnector:
+        arguments:
+            $host: '%wallet_service_api_url%'
+            $useSsl: false # true for TLS
 
     App\Resolver\CreatePaymentRequestDTOResolver:
         tags:
@@ -33,9 +40,27 @@ services:
     App\Service\Provider\Price\TronPriceProvider:
         tags: [ 'app.price_provider' ]
 
-    App\Integrations\Wallet\WalletConnector:
+    App\Serializer\UuidNormalizer:
+        tags: [ 'serializer.normalizer' ]
+
+    App\Serializer\UserIdCallback: ~
+    App\Serializer\NetworkIdCallback: ~
+
+    app.normalizer.object_normalizer:
+        class: Symfony\Component\Serializer\Normalizer\ObjectNormalizer
+        tags: [ 'serializer.normalizer' ]
         arguments:
-            $walletServiceApiURL: '%wallet_service_api_url%'
+            $defaultContext:
+                circular_reference_handler: '@App\Serializer\CircularReferenceHandler'
+                ignored_attributes: []
+                callbacks: {
+                    'user': '@App\Serializer\UserIdCallback',
+                    'network': '@App\Serializer\NetworkIdCallback',
+                    'createdAt': '@App\Serializer\DateFieldCallback',
+                    'updatedAt': '@App\Serializer\DateFieldCallback',
+                    'id': '@App\Serializer\IdCallback',
+                }
+
 
     # Example: how to configure without autoconfiguration
 #    App\EventSubscriber\ExceptionSubscriber:

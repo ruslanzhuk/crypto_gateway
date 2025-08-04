@@ -18,6 +18,10 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Route('/admin/transaction')]
 final class TransactionController extends AbstractController
 {
+    public function __construct(private TransactionService $transactionService)
+    {
+    }
+
     #[Route(name: 'app_transaction_index', methods: ['GET'])]
     public function index(TransactionRepository $transactionRepository): Response
     {
@@ -56,8 +60,7 @@ final class TransactionController extends AbstractController
     public function delete(Request $request, Transaction $transaction, EntityManagerInterface $entityManager): Response
     {
         if ($this->isCsrfTokenValid('delete' . $transaction->getId(), $request->getPayload()->getString('_token'))) {
-            $entityManager->remove($transaction);
-            $entityManager->flush();
+            $this->transactionService->deleteTransaction($transaction);
         }
 
         return $this->redirectToRoute('app_transaction_index', [], Response::HTTP_SEE_OTHER);

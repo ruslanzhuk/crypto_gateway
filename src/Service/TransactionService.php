@@ -143,6 +143,10 @@ class TransactionService
             throw new \RuntimeException('Cannot delete completed transaction.');
         }
 
+        foreach ($transaction->getFiatAmounts() as $fiatAmount) {
+            $this->em->remove($fiatAmount);
+        }
+
         $this->em->remove($transaction);
         $this->em->flush();
     }

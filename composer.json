@@ -7,11 +7,14 @@
         "php": ">=8.1",
         "ext-ctype": "*",
         "ext-iconv": "*",
+        "ext-grpc": "*",
         "brick/math": "^0.13.1",
         "doctrine/dbal": "^3",
         "doctrine/doctrine-bundle": "^2.15",
         "doctrine/doctrine-migrations-bundle": "^3.4",
         "doctrine/orm": "^3.5",
+        "google/protobuf": "^4.31",
+        "grpc/grpc": "^1.74",
         "phpdocumentor/reflection-docblock": "^5.6",
         "phpstan/phpdoc-parser": "^2.1",
         "ramsey/uuid-doctrine": "^2.1",
@@ -57,7 +60,9 @@
     },
     "autoload": {
         "psr-4": {
-            "App\\": "src/"
+            "App\\": "src/",
+            "GPBMetadata\\": "src/Integrations/WalletService/GPBMetadata/",
+            "Wallet\\": "src/Integrations/WalletService/Wallet/"
         }
     },
     "autoload-dev": {

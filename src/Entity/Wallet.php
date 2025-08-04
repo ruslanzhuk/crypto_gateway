@@ -110,4 +110,9 @@ class Wallet
 
         return $this;
     }
+
+    public function getUserId()
+    {
+        return $this->user->getId();
+    }
 }

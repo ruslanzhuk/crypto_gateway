@@ -4,9 +4,17 @@ namespace App\Normalizer;
 
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use App\Entity\Transaction;
+use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 
 class TransactionNormalizer implements NormalizerInterface
 {
+    private ObjectNormalizer $normalizer;
+
+    public function __construct(ObjectNormalizer $normalizer)
+    {
+        $this->normalizer = $normalizer;
+    }
+
     public function supportsNormalization($data, $format = null)
     {
         return $data instanceof Transaction;
@@ -14,6 +22,11 @@ class TransactionNormalizer implements NormalizerInterface
 
     public function normalize($object, $format = null, array $context = [])
     {
+//        $data = $this->normalizer->normalize($object, $format, [
+//            'ignored_attributes' => [],
+//        ]);
+//
+//        return $data;
         $confirmation = $object->getConfirmation();
 
         return [
