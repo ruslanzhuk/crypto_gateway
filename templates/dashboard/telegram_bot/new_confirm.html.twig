@@ -1,0 +1,143 @@
+{% extends 'dashboard/dashboard_base.html.twig' %}
+
+{% block title %}Підтвердження бота{% endblock %}
+
+{% block stylesheets %}
+    <style>
+        .code-circle {
+            position: relative;
+            width: 200px;
+            height: 200px;
+            margin: 30px auto;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            font-weight: bold;
+            color: #333;
+            user-select: none;
+            /* background буде керуватись JS */
+        }
+
+        .code-circle::before {
+            content: '';
+            position: absolute;
+            top: -8px;
+            left: -8px;
+            width: 216px;  /* 200 + 8*2 */
+            height: 216px;
+            border-radius: 50%;
+            background: conic-gradient(
+                    #00aaff 0deg,
+                    #00aaff 0deg,
+                    #ddd 0deg,
+                    #ddd 360deg
+            );
+            z-index: -1;
+            transition: background 0.3s;
+        }
+
+        .timer-text {
+            text-align: center;
+            font-size: 20px;
+            margin-top: 15px;
+            color: #555;
+        }
+
+        button.refresh-btn {
+            display: none;
+            margin: 20px auto;
+            padding: 10px 25px;
+            font-size: 16px;
+            background-color: #0077cc;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button.refresh-btn:hover {
+            background-color: #005fa3;
+        }
+
+        .flash-message {
+            text-align: center;
+            padding: 10px;
+            background-color: #dff0d8;
+            border: 1px solid #3c763d;
+            color: #3c763d;
+            margin-bottom: 15px;
+            border-radius: 4px;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <h2 style="text-align: center;">Підтвердіть бота</h2>
+
+    {% for label, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="flash-message">{{ message }}</div>
+        {% endfor %}
+    {% endfor %}
+
+    <p style="text-align: center;">Надішліть у вашого Telegram-бота наступний код:</p>
+
+    <div id="codeCircle" class="code-circle">{{ confirmationCode }}</div>
+    <div id="timer" class="timer-text">05:00</div>
+
+    <form id="refreshForm" action="{{ path('app_bot_manager_new_confirm_refresh', {'id': bot.id}) }}" method="POST" style="text-align:center;">
+        <button type="submit" class="refresh-btn" id="refreshBtn" style="display:none;">ОНОВИТИ КОД</button>
+    </form>
+
+    <form id="confirmForm" action="{{ path('app_bot_manager_new_confirm', {'id': bot.id}) }}" method="POST" style="text-align:center; margin-top: 30px;">
+        <button type="submit" class="refresh-btn" style="display:inline-block;">Відправив код</button>
+    </form>
+
+    <p style="text-align:center; margin-top:20px; color:#666;">
+        Ми автоматично підтвердимо, коли бот отримає це повідомлення.
+    </p>
+
+    <script>
+        // TTL з бекенда у секундах, дефолт 0, якщо немає коду в кеші
+        let timeLeft = {{ ttl|default(0) }};
+
+        const timerEl = document.getElementById('timer');
+        const codeCircle = document.getElementById('codeCircle');
+        const refreshBtn = document.getElementById('refreshBtn');
+
+        // Якщо час вже вийшов - показати кнопку оновлення одразу
+        if (timeLeft <= 0) {
+            timerEl.textContent = "Час вийшов!";
+            refreshBtn.style.display = 'inline-block';
+            // Залишити прогрес порожнім
+            codeCircle.style.background = 'conic-gradient(#ddd 0deg, #ddd 360deg)';
+        } else {
+            // Запускаємо таймер та оновлення кожну секунду
+            const updateTimer = () => {
+                let minutes = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+                let seconds = (timeLeft % 60).toString().padStart(2, '0');
+                timerEl.textContent = `${minutes}:${seconds}`;
+
+                // Обчислення градусів для прогресу (зворотній відлік)
+                let progressDeg = (timeLeft / 300) * 360;
+
+                codeCircle.style.background = `conic-gradient(#00aaff 0deg ${progressDeg}deg, #ddd ${progressDeg}deg 360deg)`;
+
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    timerEl.textContent = "Час вийшов!";
+                    refreshBtn.style.display = 'inline-block';
+                    codeCircle.style.background = 'conic-gradient(#ddd 0deg, #ddd 360deg)';
+                }
+
+                timeLeft--;
+            };
+
+            updateTimer();
+            const timerInterval = setInterval(updateTimer, 1000);
+        }
+    </script>
+{% endblock %}

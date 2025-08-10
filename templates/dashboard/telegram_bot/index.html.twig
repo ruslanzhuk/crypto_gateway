@@ -1,0 +1,40 @@
+{% extends 'dashboard/dashboard_base.html.twig' %}
+
+{% block title %}Bot Management{% endblock %}
+
+{% block body %}
+    <h1 class="text-2xl font-bold mb-4">🤖 My Telegram Bots</h1>
+
+    <a href="{{ path('app_bot_manager_new_info') }}" class="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 mb-6 inline-block">
+        ➕ Create New Bot
+    </a>
+
+    <div class="grid gap-4">
+        {% for bot in bots %}
+            <a href="{{ path('app_bot_manager_show', {'id': bot.id}) }}"
+               class="block p-4 rounded border transition transform hover:scale-[1.02] hover:shadow-lg {{ bot.isActive ? 'border-purple-600 bg-purple-50' : 'border-gray-300 bg-white' }}">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h2 class="text-lg font-bold">{{ bot.botName }}</h2>
+                        <p class="text-sm text-gray-600">@{{ bot.botUsername }}</p>
+                        <p>Status:
+                            {% if bot.isActive %}
+                                ✅ Active
+                            {% else %}
+                                ❌ Inactive
+                            {% endif %}
+                        </p>
+                        <p>Valid:
+                            {{ bot.isVerified ? '✔️ Confirmed' : '❗ Not Confirmed' }}
+                        </p>
+                    </div>
+                    <div class="text-sm text-blue-600 underline">
+                        View
+                    </div>
+                </div>
+            </a>
+        {% else %}
+            <p class="text-gray-500">No bots yet.</p>
+        {% endfor %}
+    </div>
+{% endblock %}

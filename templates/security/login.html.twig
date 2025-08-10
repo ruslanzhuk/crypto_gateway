@@ -1,0 +1,39 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Login{% endblock %}
+
+{% block body %}
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-5">
+                <div class="card shadow-sm border-0">
+                    <div class="card-body">
+                        <h4 class="mb-4 text-center text-primary">Вхід до панелі керування</h4>
+
+                        {% if error %}
+                            <div class="alert alert-danger">
+                                {{ error.messageKey|trans(error.messageData, 'security') }}
+                            </div>
+                        {% endif %}
+
+                        <form method="post" action="{{ path('login') }}">
+                            <div class="mb-3">
+                                <label for="login" class="form-label">Логін</label>
+                                <input type="text" value="{{ last_username }}" name="login" id="login" class="form-control" required autofocus autocomplete="username">
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="password" class="form-label">Пароль</label>
+                                <input type="password" name="password" id="password" class="form-control" required autocomplete="current-password">
+                            </div>
+
+                            <button class="btn btn-primary w-100" type="submit">Увійти</button>
+                        </form>
+                    </div>
+                </div>
+
+                <p class="text-center mt-3 text-muted small">© {{ "now"|date("Y") }} D&D...</p>
+            </div>
+        </div>
+    </div>
+{% endblock %}

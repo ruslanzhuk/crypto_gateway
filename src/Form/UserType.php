@@ -23,7 +23,6 @@ class UserType extends AbstractType
                 'mapped' => true,
                 'label' => 'Password',
             ])
-            ->add('telegramChatId')
             ->add('role', EntityType::class, [
                 'class' => Role::class,
                 'choice_label' => 'name', // або 'title' якщо таке є

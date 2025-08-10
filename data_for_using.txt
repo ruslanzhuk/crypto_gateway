@@ -1,3 +1,6 @@
 allegro:
     login: allegro_MAIN
     password: tr44lon0S
+    
+    bot:
+    bot-token: 8289995186:AAGEtNu9Dnkh2COjsNUaticU9PzqN7V8lG8

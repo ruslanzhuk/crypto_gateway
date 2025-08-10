@@ -39,9 +39,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 255)]
     private ?string $password = null;
 
-    #[ORM\Column(length: 255)]
-    private ?string $telegramChatId = null;
-
     #[ORM\Column]
     private ?\DateTimeImmutable $createdAt = null;
 
@@ -64,10 +61,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\JoinColumn(nullable: false)]
     private ?Role $role = null;
 
+    /**
+     * @var Collection<int, TelegramBotIntegration>
+     */
+    #[ORM\OneToMany(targetEntity: TelegramBotIntegration::class, mappedBy: 'creator', orphanRemoval: true)]
+    private Collection $telegramBots;
+
     public function __construct()
     {
         $this->wallets = new ArrayCollection();
         $this->transactions = new ArrayCollection();
+        $this->telegramBots = new ArrayCollection();
     }
 
     public function getId(): ?UuidInterface
@@ -119,18 +123,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setPassword(string $password): static
     {
         $this->password = $password;
-
-        return $this;
-    }
-
-    public function getTelegramChatId(): ?string
-    {
-        return $this->telegramChatId;
-    }
-
-    public function setTelegramChatId(string $telegram_chat_id): static
-    {
-        $this->telegramChatId = $telegram_chat_id;
 
         return $this;
     }
@@ -241,6 +233,43 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setRole(?Role $role): static
     {
         $this->role = $role;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, TelegramBotIntegration>
+     */
+    public function getTelegramBots(): Collection
+    {
+        return $this->telegramBots;
+    }
+
+    public function getActiveTelegramBot(): ?TelegramBotIntegration
+    {
+        return $this->telegramBots->filter(function (TelegramBotIntegration $telegramBot) {
+            return $telegramBot->isActive();
+        })->first() ?: null;
+    }
+
+    public function addTelegramBot(TelegramBotIntegration $telegramBot): static
+    {
+        if (!$this->telegramBots->contains($telegramBot)) {
+            $this->telegramBots->add($telegramBot);
+            $telegramBot->setCreator($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTelegramBot(TelegramBotIntegration $telegramBot): static
+    {
+        if ($this->telegramBots->removeElement($telegramBot)) {
+            // set the owning side to null (unless already changed)
+            if ($telegramBot->getCreator() === $this) {
+                $telegramBot->setCreator(null);
+            }
+        }
 
         return $this;
     }

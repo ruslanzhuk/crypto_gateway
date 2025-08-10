@@ -66,13 +66,6 @@ services:
     networks:
       - app-network
 
-#  wallet_service:
-#    image: your-wallet-service-image
-#    ports:
-#      - "50051:50051" # gRPC порт
-#    depends_on:
-#      - db
-
 volumes:
   db-data:
 

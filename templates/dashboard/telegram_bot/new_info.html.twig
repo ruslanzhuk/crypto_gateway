@@ -1,0 +1,15 @@
+{% extends 'dashboard/dashboard_base.html.twig' %}
+
+{% block title %}Telegram Bot - Інструкція{% endblock %}
+
+{% block body %}
+    <h2>Підключення Telegram-бота: інструкція</h2>
+    <ol>
+        <li>Відкрийте <a href="https://t.me/BotFather" target="_blank">BotFather</a> в Telegram</li>
+        <li>Створіть нового бота: <code>/newbot</code></li>
+        <li>Скопіюйте виданий <strong>токен</strong></li>
+        <li>Перейдіть до наступного кроку й вставте токен</li>
+    </ol>
+
+    <a href="{{ path('app_bot_manager_new_token') }}" class="btn btn-primary">➡️ Перейти до введення токена</a>
+{% endblock %}

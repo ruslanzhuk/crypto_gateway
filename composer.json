@@ -8,6 +8,7 @@
         "ext-ctype": "*",
         "ext-iconv": "*",
         "ext-grpc": "*",
+        "ext-redis": "*",
         "brick/math": "^0.13.1",
         "doctrine/dbal": "^3",
         "doctrine/doctrine-bundle": "^2.15",

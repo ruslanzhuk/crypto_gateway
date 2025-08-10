@@ -15,7 +15,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/admin/transaction')]
+#[Route('/dashboard/transaction')]
 final class TransactionController extends AbstractController
 {
     public function __construct(private TransactionService $transactionService)
@@ -25,15 +25,20 @@ final class TransactionController extends AbstractController
     #[Route(name: 'app_transaction_index', methods: ['GET'])]
     public function index(TransactionRepository $transactionRepository): Response
     {
-        return $this->render('admin/transaction/index.html.twig', [
-            'transactions' => $transactionRepository->findAll(),
+		$user = $this->getUser();
+
+        return $this->render('dashboard/transaction/index.html.twig', [
+	        'transactions' => $transactionRepository->findBy(
+		        ['user' => $user],
+		        ['createdAt' => 'DESC']
+	        ),
         ]);
     }
 
     #[Route('/show/{id}', name: 'app_transaction_show', methods: ['GET'])]
     public function show(Transaction $transaction): Response
     {
-        return $this->render('admin/transaction/show.html.twig', [
+        return $this->render('dashboard/transaction/show.html.twig', [
             'transaction' => $transaction,
         ]);
     }
@@ -50,7 +55,7 @@ final class TransactionController extends AbstractController
             return $this->redirectToRoute('app_transaction_index', [], Response::HTTP_SEE_OTHER);
         }
 
-        return $this->render('admin/transaction/edit.html.twig', [
+        return $this->render('dashboard/transaction/edit.html.twig', [
             'transaction' => $transaction,
             'form' => $form,
         ]);

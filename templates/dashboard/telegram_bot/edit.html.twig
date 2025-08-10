@@ -1,0 +1,13 @@
+{% extends 'dashboard/dashboard_base.html.twig' %}
+
+{% block title %}Edit TelegramBotIntegration{% endblock %}
+
+{% block body %}
+    <h1>Edit TelegramBotIntegration</h1>
+
+    {{ include('telegram_bot_integration/_form.html.twig', {'button_label': 'Update'}) }}
+
+    <a href="{{ path('app_telegram_bot_integration_index') }}">back to list</a>
+
+    {{ include('telegram_bot_integration/_delete_form.html.twig') }}
+{% endblock %}

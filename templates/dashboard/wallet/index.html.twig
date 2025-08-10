@@ -1,0 +1,51 @@
+{% extends 'dashboard/dashboard_base.html.twig' %}
+
+{% block title %}Wallets{% endblock %}
+
+{% block body %}
+    <div class="max-w-6xl mx-auto mt-10 p-6 bg-white rounded-2xl shadow-md">
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-2xl font-bold">Wallets</h1>
+{#            <a href="{{ path('app_wallet_new') }}"#}
+{#               class="inline-block bg-blue-600 text-white text-sm font-semibold px-4 py-2 rounded-lg hover:bg-blue-700 transition">#}
+{#                + Create New Wallet#}
+{#            </a>#}
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="min-w-full table-auto border border-gray-200">
+                <thead class="bg-gray-100 text-gray-700 text-sm">
+                <tr>
+                    <th class="px-4 py-2 text-left">ID</th>
+                    <th class="px-4 py-2 text-left">Public Address</th>
+                    <th class="px-4 py-2 text-left">Private Key</th>
+                    <th class="px-4 py-2 text-left">Seed Phrase</th>
+                    <th class="px-4 py-2 text-left">Created At</th>
+                    <th class="px-4 py-2 text-left">Actions</th>
+                </tr>
+                </thead>
+                <tbody class="text-sm text-gray-800 divide-y divide-gray-100">
+                {% for wallet in wallets %}
+                    <tr>
+                        <td class="px-4 py-2">{{ wallet.id }}</td>
+                        <td class="px-4 py-2 break-all">{{ wallet.publicAddress ?? '—' }}</td>
+                        <td class="px-4 py-2 break-all text-red-600 font-mono">{{ wallet.privateKey ?? '—' }}</td>
+                        <td class="px-4 py-2 break-words font-mono text-yellow-700">{{ wallet.seedPhrase ?? '—' }}</td>
+                        <td class="px-4 py-2">{{ wallet.createdAt ? wallet.createdAt|date('Y-m-d H:i:s') : '—' }}</td>
+                        <td class="px-4 py-2 space-x-2">
+                            <a href="{{ path('app_wallet_show', {'id': wallet.id}) }}"
+                               class="text-blue-600 hover:underline">Show</a>
+{#                            <a href="{{ path('app_wallet_edit', {'id': wallet.id}) }}"#}
+{#                               class="text-yellow-600 hover:underline">Edit</a>#}
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="6" class="px-4 py-6 text-center text-gray-500">No wallets found.</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}
