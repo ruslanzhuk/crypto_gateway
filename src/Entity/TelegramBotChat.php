@@ -25,6 +25,9 @@ class TelegramBotChat
     #[ORM\Column]
     private ?bool $isVerified = null;
 
+    #[ORM\Column(length: 50)]
+    private ?string $role = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -74,6 +77,18 @@ class TelegramBotChat
     public function setIsVerified(bool $isVerified): static
     {
         $this->isVerified = $isVerified;
+
+        return $this;
+    }
+
+    public function getRole(): ?string
+    {
+        return $this->role;
+    }
+
+    public function setRole(string $role): static
+    {
+        $this->role = $role;
 
         return $this;
     }

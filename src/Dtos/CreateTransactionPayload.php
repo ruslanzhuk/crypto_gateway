@@ -11,10 +11,8 @@ class CreateTransactionPayload
 {
     public function __construct(
         public readonly User $user,
-        public readonly FiatCurrency $fiatCurrency,
         public readonly CryptoCurrency $cryptoCurrency,
         public readonly Network $network,
         public readonly float $cryptoAmount,
-        public readonly string $walletAddress,
     ) {}
 }

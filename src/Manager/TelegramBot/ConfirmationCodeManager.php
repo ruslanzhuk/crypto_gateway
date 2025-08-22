@@ -113,4 +113,21 @@ class ConfirmationCodeManager
 
 		return 0;
 	}
+
+	public function findKeysByPrefix(string $prefix): array
+	{
+		$pattern = $prefix . "*";
+
+		try {
+			$keys = $this->redis->keys($pattern);
+			if (!empty($keys)) {
+				error_log("✅ Знайдено ключі: " . json_encode($keys));
+			} else {
+				error_log("❌ Немає ключів з таким префіксом");
+			}
+			return $keys ?: [];
+		} catch (\Throwable $e) {
+			return [];
+		}
+	}
 }

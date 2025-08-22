@@ -5,6 +5,8 @@ namespace App\Service;
 use App\Dtos\CreateTransactionPayload;
 use App\Entity\FiatAmountPerTransaction;
 use App\Entity\PaymentConfirmation;
+use App\Entity\TelegramBotChat;
+use App\Entity\TelegramBotIntegration;
 use App\Entity\Transaction;
 use App\Entity\Wallet;
 use App\Entity\PaymentStatus;
@@ -19,29 +21,22 @@ class TransactionService
     private EntityManagerInterface $em;
     private ParameterBagInterface $params;
     private CoinGeckoPriceProvider $priceProvider;
+	private FiatConversionService $fiatConversionService;
 
-    public function __construct(EntityManagerInterface $em, ParameterBagInterface $params, CoinGeckoPriceProvider $priceProvider)
+	private TelegramBotService $telegramBotService;
+
+    public function __construct(EntityManagerInterface $em, ParameterBagInterface $params, CoinGeckoPriceProvider $priceProvider, FiatConversionService $fiatConversionService, TelegramBotService $telegramBotService)
     {
         $this->em = $em;
         $this->params = $params;
         $this->priceProvider = $priceProvider;
-    }
-
-    public function getWalletAddress(string $cryptoCode, string $networkCode): string
-    {
-        $wallets = $this->params->get('wallets');
-
-        return $wallets[$networkCode][$cryptoCode] ?? '0xDEFAULTADDRESS';
+		$this->fiatConversionService = $fiatConversionService;
+		$this->telegramBotService = $telegramBotService;
     }
 
     public function createTransaction(CreateTransactionPayload $payload, WalletService $walletService): Transaction
     {
         $now = new \DateTimeImmutable();
-
-        $fiatRates = $this->priceProvider->convertCryptoToFiat(
-            strtolower($payload->cryptoCurrency->getName()),
-            $payload->cryptoAmount
-        );
 
         $wallet = $walletService->createWallet($payload->network, $payload->user);
 
@@ -50,9 +45,6 @@ class TransactionService
             throw new \RuntimeException("Status 'PND' not be found in table payment_status.");
         }
 
-//        $confirmation = new PaymentConfirmation();
-//        $this->em->persist($confirmation); // ⚠️ якщо confirmation обов’язковий і створюється одразу
-
         $tx = (new Transaction())
             ->setUser($payload->user)
             ->setWallet($wallet)
@@ -60,38 +52,31 @@ class TransactionService
             ->setMainStatus($status)
             ->setManualStatus($status)
             ->setAutomaticStatus($status)
-//            ->setConfirmation($confirmation)
             ->setAmountCrypto($payload->cryptoAmount)
             ->setReceivedAmountCrypto(0)
             ->setIsAutomatic(false)
             ->setCreatedAt($now)
             ->setExpiredAt($now->modify('+30 minutes'))
-            ->setTxHash(Uuid::uuid4()->toString()); // або uuid або більш надійний хеш
+            ->setTxHash(Uuid::uuid4()->toString());
 
         $this->em->persist($tx);
 
-        foreach ($fiatRates as $fiatCode => $fiatAmount) {
-            $fiatCurrency = $this->em->getRepository(\App\Entity\FiatCurrency::class)
-                ->findOneBy(['code' => strtoupper($fiatCode)]);
-
-            if (!$fiatCurrency) {
-                throw new \RuntimeException("Currency $fiatCode not found in fiat_currency table.");
-            }
-
-            // Ціна за 1 одиницю крипти (тобто rate)
-            $rate = $fiatAmount / $payload->cryptoAmount;
-
-            $conversion = (new FiatAmountPerTransaction())
-                ->setTransaction($tx)
-                ->setFiatCurrency($fiatCurrency)
-                ->setAmount($fiatAmount)
-                ->setRate($rate)
-                ->setCreatedAt($now);
-
-            $this->em->persist($conversion);
-        }
+        $this->fiatConversionService->createConversions(
+			$tx,
+	        $payload->cryptoAmount,
+	        $payload->cryptoCurrency->getName(),
+        );
 
         $this->em->flush();
+
+		$telegramIntegration = $this->em->getRepository(TelegramBotIntegration::class)->findOneBy(['creator' => $payload->user]);
+
+		$loggerChats = $this->em->getRepository(TelegramBotChat::class)->findBy(['integration' => $telegramIntegration,'role' => 'ROLE_LOGGER_CHAT', 'isVerified' => true]);
+		foreach ($loggerChats as $chat) {
+			$chatId = $chat->getChatId();
+			$this->telegramBotService->notifyUser($telegramIntegration, $chatId,
+				"🆕 Нова транзакція створена!\nСума: {$tx->getAmountCrypto()} {$tx->getCryptoCurrency()->getName()}\nКористувач: {$tx->getUser()->getEmail()}\nTxHash: {$tx->getTxHash()}");
+		}
 
         return $tx;
     }

@@ -47,18 +47,29 @@ class TelegramBotWebhookHandler
 			return;
 		}
 
-		if ($chatType == 'group') {
+		if ($chatType == 'group' && $text == "/role_logger_chat") {
+			try {
+				$this->botChatService->setRole($bot, $chatId, 'ROLE_LOGGER_CHAT');
+				$this->botService->notifyUser($bot, $chatId, "✅ Роль цього чату змінено на LOGGER_CHAT!");
+			} catch (\RuntimeException $e) {
+				$this->botService->notifyUser($bot, $chatId, $e->getMessage());
+			}
+			return;
+		}
+
+		if ($chatType == 'group' && !str_starts_with($text, '/')) {
 			$this->botService->notifyUser($bot, $chatId, "I got ur message >▽<");
 			return;
 		}
 
 		if ($chatType === 'private') {
 			if ($bot->isVerified()) {
+//				$this->botService->notifyUser($bot, $chatId, 'I got ur message');
 				if($text && $groupChatId = $this->codeManager->findChatByCode('group', $text)) {
 					$this->botChatService->registerGroupChat($bot, $groupChatId, $chatTitle);
 					$this->botService->notifyUser($bot, $chatId, '✅ Групу підтверджено!');
 					$this->botService->notifyUser($bot, $groupChatId, '✅ Цей чат підтверджено!');
-				} else {
+				} else if($text && $this->codeManager->findKeysByPrefix("confirm_code_")) {
 					$this->botService->notifyUser($bot, $chatId, '❌ Невірний код!');
 				}
 				return;

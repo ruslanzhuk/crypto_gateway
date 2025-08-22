@@ -22,7 +22,7 @@ class TelegramUpdateWebhooksCommand extends Command
 
 	protected function execute(InputInterface $input, OutputInterface $output): int
 	{
-		$baseUrl = "https://293ff34d886f.ngrok-free.app/telegram/webhook";
+		$baseUrl = "https://daab2230d6d3.ngrok-free.app/telegram/webhook";
 
 		$bots = $this->botRepo->findAll();
 

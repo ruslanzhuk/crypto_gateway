@@ -15,7 +15,6 @@ class TransactionPayloadTransformer
 {
     public function __construct(
         private UserRepository $userRepository,
-        private FiatCurrencyRepository $fiatRepo,
         private CryptoCurrencyRepository $cryptoRepo,
         private NetworkRepository $networkRepo,
         private TransactionService $txService,
@@ -30,11 +29,6 @@ class TransactionPayloadTransformer
             throw new NotFoundHttpException('Shop not found');
         }
 
-        $fiat = $this->fiatRepo->findOneBy(['code' => "USD"]);
-        if (!$fiat) {
-            throw new NotFoundHttpException('Fiat currency not found');
-        }
-
         $crypto = $this->cryptoRepo->findOneBy(['code' => $dto->cryptocurrency]);
         if (!$crypto) {
             throw new NotFoundHttpException('Cryptocurrency not found');
@@ -45,17 +39,11 @@ class TransactionPayloadTransformer
             throw new NotFoundHttpException('Network not found');
         }
 
-        $walletAddress = $this->txService->getWalletAddress($dto->cryptocurrency, $network->getName());
-
-
-
         return new CreateTransactionPayload(
             user: $user,
-            fiatCurrency: $fiat,
             cryptoCurrency: $crypto,
             network: $network,
             cryptoAmount: $dto->cryptoamount,
-            walletAddress: $walletAddress
         );
     }
 }
