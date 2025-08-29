@@ -10,11 +10,13 @@ use App\Entity\TelegramBotIntegration;
 use App\Entity\Transaction;
 use App\Entity\Wallet;
 use App\Entity\PaymentStatus;
+use App\Event\TransactionCreatedEvent;
 use App\Service\Provider\Price\CoinGeckoPriceProvider;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class TransactionService
 {
@@ -25,17 +27,21 @@ class TransactionService
 
 	private TelegramBotService $telegramBotService;
 
-    public function __construct(EntityManagerInterface $em, ParameterBagInterface $params, CoinGeckoPriceProvider $priceProvider, FiatConversionService $fiatConversionService, TelegramBotService $telegramBotService)
+	private EventDispatcherInterface $eventDispatcher;
+
+    public function __construct(EntityManagerInterface $em, ParameterBagInterface $params, CoinGeckoPriceProvider $priceProvider, FiatConversionService $fiatConversionService, TelegramBotService $telegramBotService, EventDispatcherInterface $eventDispatcher)
     {
         $this->em = $em;
         $this->params = $params;
         $this->priceProvider = $priceProvider;
 		$this->fiatConversionService = $fiatConversionService;
 		$this->telegramBotService = $telegramBotService;
+		$this->eventDispatcher = $eventDispatcher;
     }
 
     public function createTransaction(CreateTransactionPayload $payload, WalletService $walletService): Transaction
     {
+
         $now = new \DateTimeImmutable();
 
         $wallet = $walletService->createWallet($payload->network, $payload->user);
@@ -61,23 +67,9 @@ class TransactionService
 
         $this->em->persist($tx);
 
-        $this->fiatConversionService->createConversions(
-			$tx,
-	        $payload->cryptoAmount,
-	        $payload->cryptoCurrency->getName(),
-        );
+		$this->eventDispatcher->dispatch(new TransactionCreatedEvent($tx), TransactionCreatedEvent::NAME);
 
-        $this->em->flush();
-
-		$telegramIntegration = $this->em->getRepository(TelegramBotIntegration::class)->findOneBy(['creator' => $payload->user]);
-
-		$loggerChats = $this->em->getRepository(TelegramBotChat::class)->findBy(['integration' => $telegramIntegration,'role' => 'ROLE_LOGGER_CHAT', 'isVerified' => true]);
-		foreach ($loggerChats as $chat) {
-			$chatId = $chat->getChatId();
-			$this->telegramBotService->notifyUser($telegramIntegration, $chatId,
-				"🆕 Нова транзакція створена!\nСума: {$tx->getAmountCrypto()} {$tx->getCryptoCurrency()->getName()}\nКористувач: {$tx->getUser()->getEmail()}\nTxHash: {$tx->getTxHash()}");
-		}
-
+	    $this->em->flush();
         return $tx;
     }
 

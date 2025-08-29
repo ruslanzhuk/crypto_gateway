@@ -3,7 +3,6 @@
 namespace App\Dtos;
 
 use App\Entity\CryptoCurrency;
-use App\Entity\FiatCurrency;
 use App\Entity\Network;
 use App\Entity\User;
 

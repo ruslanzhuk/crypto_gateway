@@ -14,7 +14,6 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
 #[Route('/api/transaction')]
 class TransactionApiController extends AbstractController
@@ -22,7 +21,6 @@ class TransactionApiController extends AbstractController
     public function __construct(
         private TransactionRepository $transactionRepository,
         private TransactionService $transactionService,
-        private NormalizerInterface $normalizer
     )
     {
     }
@@ -33,15 +31,15 @@ class TransactionApiController extends AbstractController
         return $this->json($transactions);
     }
 
-    #[Route('/new', name: 'api_transaction_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $em, TransactionService $transactionService, TransactionPayloadTransformer $payloadTransformer, WalletService $walletService): Response
+    #[Route('/new', name: 'api_transaction_new', methods: ['POST'])]
+    public function new(Request $request, TransactionPayloadTransformer $payloadTransformer, WalletService $walletService): Response
     {
         /* @var CreatePaymentRequestDTO $data */
         $data = $request->attributes->get("payload");
 
         $payload = $payloadTransformer->fromDto($data);
 
-        $transaction = $transactionService->createTransaction($payload, $walletService);
+        $transaction = $this->transactionService->createTransaction($payload, $walletService);
 
 
         return $this->json([
